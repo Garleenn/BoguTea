@@ -8,7 +8,6 @@ export default {
             phone: ``,
             email: ``,
             message: ``,
-            userBase: null,
             invalid: ``,
             valid: ``
         }
@@ -30,12 +29,6 @@ export default {
                 return;
             } else {
                 try {
-                    this.userBase = {
-                        name: this.username,
-                        phoneNumber: this.phone,
-                        email: this.email,
-                        message: this.message
-                    };
                     this.invalid = ``;
                     this.valid = `Отправляется...`;
                     setTimeout(() => {
@@ -48,8 +41,11 @@ export default {
                     setTimeout(() => {
                         this.valid = ``
                     }, 3500)
-                    await axios.post('/request/user', {
-                        user: this.userBase
+                    await axios.post('/requests', {
+                        name: this.username,
+                        phoneNumber: this.phone,
+                        email: this.email,
+                        message: this.message
                     });
                 } catch(err) {
                     this.invalid = err

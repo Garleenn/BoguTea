@@ -32,8 +32,8 @@ export default {
     </div>
     <nav class="menu-block text-2xl">
         <ul class="flex gap-6">
-            <li><a href="#">Главная</a></li>
-            <li @click="openCart" class="font-bold cursor-pointer cart-item">Корзина</li>
+            <li><a class="select-none tel" href="tel:+79507608461">+7 (950) - 760 - 84 - 61</a></li>
+            <li @click="openCart" class="font-bold cursor-pointer cart-item select-none">Корзина</li>
         </ul>
     </nav>
 </div>
@@ -50,7 +50,9 @@ export default {
 
 
 <style scoped>
-
+.tel:hover {
+    color: black;
+}
 @media (max-width: 768px) {
     .nav-container {
         padding: 12px 16px;

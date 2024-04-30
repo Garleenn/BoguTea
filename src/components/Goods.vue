@@ -10,7 +10,7 @@ export default {
             isHide: true,
             count: 1,
 
-            index: null
+            id: null
         }
     },
     mounted() {
@@ -20,9 +20,9 @@ export default {
         }, 60000);
     },
     methods: {
-        openCard(index) {
+        openCard(id) {
             this.isHide = !this.isHide;
-            this.index = index;
+            this.id = id;
         },
         async loadMenu() {
             let responce = await axios.get('/goods');
@@ -34,11 +34,11 @@ export default {
 
 
 <template>
-    <div class="h-container mx-8 flex justify-between items-center mt-10 lg:mx-48 mb-6">
+    <div class="h-container mx-8 flex justify-between items-center mt-10 2xl:mx-48 mb-6">
         <h1 class="font-bold text-5xl">Наши товары:</h1>
     </div>
     <div class="goods mx-8 flex justify-center items-center flex-wrap gap-x-20 gap-y-12 my-10">
-        <div v-for="(good, index) in goods" class="good-card flex flex-col gap-0 w-1/4 border 
+        <div v-for="good in goods" class="good-card flex flex-col gap-0 w-1/4 border 
         border-slate-700 rounded-2xl shadow-xl transition-all ease-in-out duration-300 hover:-translate-y-2" 
         :class="{'hover:shadow-2xl': good.isHas}">
         <img class="rounded-t-xl cursor-pointer border-b border-black" :src="good.img">
@@ -48,7 +48,7 @@ export default {
                 <i class="font-bold text-emerald-600" v-if="good.isHas">Товар в наличии</i>
                 <i class="text-red-500 font-bold" v-else>Товар закончился(</i>
                 <b class="text-2xl">{{ good.price }} руб.</b>
-                <button @click="openCard(index)">Подробнее!</button>
+                <button @click="openCard(good._id)">Подробнее!</button>
             </div>
         </div>
     </div>
@@ -56,7 +56,7 @@ export default {
     <div class="drawer" v-if="!this.isHide">
         <div class="wrapper fixed left-0 top-0 w-full h-full z-10 bg-black opacity-50 cursor-pointer"
         @click="this.isHide = !this.isHide"></div>
-        <card-item class="z-20 bg-white" :index="index"></card-item>
+        <card-item class="z-20 bg-white" :id="id"></card-item>
     </div>
 </template>
 

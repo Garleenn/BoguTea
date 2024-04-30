@@ -11,7 +11,7 @@ export default {
         }
     },
     props: {
-        index: Number
+        id: Number
     },
     mounted() {
         this.loadGood();
@@ -21,7 +21,7 @@ export default {
     },
     methods: {
         async loadGood() {
-            let responce = await axios.get(`/good?id=${this.index}`);
+            let responce = await axios.get(`/good?id=${this.id}`);
             this.good = responce.data;
         },
         plus() {
@@ -39,12 +39,11 @@ export default {
         },
         async addToCart() {
             try {
-                await axios.post(`/cart/good`, {
-                        img: this.good.img,
-                        name: this.good.name,
-                        discr: this.good.discr,
-                        price: this.good.price * this.count,
-                        count: this.count
+                await axios.post(`/cart`, {
+                    img: this.good.img,
+                    name: this.good.name,
+                    price: this.good.price * this.count,
+                    count: this.count
                 });
             } catch (err) {
                 this.error = err;

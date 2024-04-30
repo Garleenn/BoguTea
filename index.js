@@ -6,139 +6,120 @@ app.use(cors(`http://localhost:${port}`));
 app.use(express.json());
 
 app.listen(port, () => {
-    console.info('http://localhost:3005');
+    console.info(`http://localhost:${port}`);
 })
 
-let goods = [
-    {
-        img: 'src/assets/tea.jpg',
-        name: `Чайная бомба`,
-        discr: `Небольшая чайная бомбочка с лимоном, китайским чаем, 
-        облепихой и малиной, которая расторяется в воде всего за 10 секунд!`,
-        price: 250,
-        isHas: true,
-    },
-    {
-        img: 'https://kreda.pro/upload/medialibrary/9cf/9hy1b6q10jkn4rr2hw2kpcvq3mwnrqmn.jpg',
-        name: `Чайная бомба`,
-        discr: `Небольшая чайная бомбочка с лимоном, китайским чаем, 
-        облепихой и малиной, которая расторяется в воде всего за 10 секунд!`,
-        price: 300,
-        isHas: false,
-    },
-    {
-        img: 'https://sun9-50.userapi.com/impg/jawbYKJUYsLwSYQfAWogZSDtBXSPmYXNFyi5HQ/4xaZ7KydAX0.jpg?size=640x715&quality=96&sign=157ab7b0cb27c79811994606d1cdf240&c_uniq_tag=DiSJxkYB3LipCOIEE7LYls80I_tyVBuk_RQjhhcSXXw&type=album',
-        name: `Чайная бомба`,
-        discr: `Небольшая чайная бомбочка с лимоном, китайским чаем, 
-        облепихой и малиной, которая расторяется в воде всего за 10 секунд!`,
-        price: 180,
-        isHas: true,
-    },
-    {
-        img: 'https://avatars.mds.yandex.net/get-mpic/5323566/img_id714816769431328280.jpeg/orig',
-        name: `Чайная бомба`,
-        discr: `Небольшая чайная бомбочка с лимоном, китайским чаем, 
-        облепихой и малиной, которая расторяется в воде всего за 10 секунд!`,
-        price: 400,
-        isHas: true,
-    },
-    {
-        img: 'https://goo.su/4X4bHf',
-        name: `Чайная бомба`,
-        discr: `Небольшая чайная бомбочка с лимоном, китайским чаем, 
-        облепихой и малиной, которая расторяется в воде всего за 10 секунд!`,
-        price: 800,
-        isHas: true,
-    },
-    {
-        img: 'https://goods-photos.static1-sima-land.com/items/7301738/2/700-nw.jpg',
-        name: `Чайная бомба`,
-        discr: `Небольшая чайная бомбочка с лимоном, китайским чаем, 
-        облепихой и малиной, которая расторяется в воде всего за 10 секунд!`,
-        price: 70,
-        isHas: false,
-    },
-    {
-        img: 'https://avatars.mds.yandex.net/get-marketpic/8608310/pic59f40cce23378a948d2cdc70f7283838/orig',
-        name: `Чайная бомба`,
-        discr: `Небольшая чайная бомбочка с лимоном, китайским чаем, 
-        облепихой и малиной, которая расторяется в воде всего за 10 секунд!`,
-        price: 140,
-        isHas: true,
-    },
-    {
-        img: 'https://sun9-85.userapi.com/s/v1/ig2/2jhZifJD-eh8dOjnsRhc_15lkNCZSI2i7KbwqgDu_Rpm7dGC6roI4sfEpliTO5j7Jf_SnFxSklFDlbcrdOjRDT4W.jpg?size=400x400&quality=95&crop=326,470,468,468&ava=1',
-        name: `Чайная бомба`,
-        discr: `Небольшая чайная бомбочка с лимоном, китайским чаем, 
-        облепихой и малиной, которая расторяется в воде всего за 10 секунд!`,
-        price: 250,
-        isHas: true,
-    },
-];
+let mongoose = require('mongoose');
+mongoose.connect('mongodb://127.0.0.1:27017/BoguTea')
 
-app.get('/goods', function (req, res) {
-    res.send(goods);
+let goodsSchema = new mongoose.Schema({
+    img: String,
+    name: String,
+    discr: String,
+    price: Number,
+    isHas: Boolean
 });
 
-app.get('/good', function (req, res) {
+let Goods = mongoose.model('good', goodsSchema);
+
+//Routes
+
+app.get('/goods', async function (req, res) {
+    let data = await Goods.find();
+    res.send(data);
+});
+
+app.get('/good', async function (req, res) {
     let id = req.query.id;
-    let good = goods[id];
+    let good = await Goods.findOne({
+        _id: id
+    });
 
     if(id) {
-        res.status(200).send(good)
+        res.status(200).send(good);
     } else {
-        res.status(400).send('Что-то пошло не так')
+        res.status(400).send('Что-то пошло не так');
     }
 });
 
-let cart = [];
+//Cart route
 
-app.get('/cart', function (req, res) {
-    res.send(cart)
+let cartSchema = new mongoose.Schema({
+    img: String,
+    name: String,
+    price: Number,
+    count: Number
+}, {
+    versionKey: false
 });
 
-app.post('/cart/good', function (req, res) {
-    let { img, name, discr, price, count } = req.body
+let Cart = mongoose.model('cart', cartSchema);
+
+app.get('/cart', async function (req, res) {
+    let data = await Cart.find();
+    res.send(data);
+});
+
+app.post('/cart', async function (req, res) {
+    let { img, name, price, count } = req.body;
     
     if (name) {
-        let good = {
+        let good = new Cart({
             img: img,
             name: name,
-            discr: discr,
             price: price,
             count: count
-        }
-        cart.push(good);
-        res.status(200).send('Успех!');
+        });
+        await good.save();
+        res.sendStatus(200);
     } else {
-        res.send('Не найдено');
+        res.sendStatus(400);
     }
 });
 
-app.delete('/itemCart', function (req, res) {
+app.delete('/cart', async function (req, res) {
     let id = req.query.id;
-    let good = cart[id];
     if(id) {
-        cart.splice(good, 1);
-        res.status(200).send(good)
+        await Cart.deleteOne({ _id: id });
+        res.sendStatus(200);
     } else {
-        res.status(400).send('Что-то пошло не так')
+        res.sendStatus(400);
     }
 });
 
+// Request route
 
-let request = [];
-
-app.get('/requests', function (req, res) {
-    res.send(request);
+let requestShema = new mongoose.Schema({
+    username: String,
+    phoneNumber: String,
+    email: String,
+    message: String
+}, {
+    timestamps: true,
+    versionKey: false
 });
 
-app.post('/request/user', function (req, res) {
-    let user = req.body.user;
-    if(user) {
-        request.push(user);
-        res.status(200);
+let Request = mongoose.model('request', requestShema);
+
+app.get('/requests', async function (req, res) {
+    let data = await Request.find();
+    res.status(200).send(data);
+});
+
+app.post('/requests', async function (req, res) {
+    let { username, phoneNumber, email, message } = req.body;
+    
+    if(phoneNumber) {
+        let request = new Request({
+            username: username,
+            phoneNumber: phoneNumber,
+            email: email,
+            message: message,
+        });
+    
+        await request.save();
+        res.sendStatus(200);
     } else {
-        res.status(500).send('Ошибка \n исправь дебил!');
+        res.status(500).send('Ошибка!');
     }
 });

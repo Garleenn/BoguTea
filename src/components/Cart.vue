@@ -18,6 +18,7 @@ export default {
         this.loadCart();
         setInterval(() => {
             this.loadCart();
+            this.sum();
         }, 20000);
     },
     methods: {
@@ -32,17 +33,34 @@ export default {
             }
         },
 
-        async removeGood(index) {
-            await axios.delete(`/itemCart?id=${index}`);
+        async removeGood(id) {
+            await axios.delete(`/cart?id=${id}`);
             this.loadCart();
         },
 
-        sum() {
-            this.cardGoods.forEach(item => {
-                if(this.cardGoods.length != 0 && item) {
-                    this.summ += item.price;
-                };
+        async changeCountPlus() {
+            this.count++;
+            await axios.put(`/cart?id=${id}`, {
+                count: this.count + 1,
             });
+        },
+        async changeCountMinus() {
+            this.count--;
+            await axios.put(`/cart?id=${id}`, {
+                count: this.count - 1,
+            });
+        },
+
+        sum() {
+            for(let i = 0; i < this.cardGoods.length; i++) {
+                if(this.cardGoods.length != 0) {
+                    let price = this.cardGoods[i].price;
+                    this.summ += price;
+                    this.action = this.summ * this.actionPrecent;
+                } else {
+                    this.summ = 0;
+                }
+            }
         },
     }
 }
@@ -59,19 +77,24 @@ export default {
             </span>
             <div class="goods-conteiner flex flex-col items-center gap-5 mb-12">
                 <div class="good-card flex flex-row items-center gap-8 p-8 border border-black rounded-xl cursor-pointer"
-                    v-for="(good, index) in cardGoods">
+                    v-for="good in cardGoods">
                     <img class="rounded-xl" :src="good.img" :alt="good.name">
                     <div class="info-card flex flex-col">
                         <h3 class="text-emerald-500 text-cold font-bold">{{ good.name }}</h3>
                         <span class="font-bold text-cold">{{ good.price }} рублей</span>
-                        <span class="text-slate-500">Количество: {{ good.count }}</span>
+                        <div class="count gap-2">
+                            <span class="count text-slate-500 text-5">Количество: 
+                                <div class="count-put mx-2" @click="changeCountMinus">-</div>
+                                {{ good.count }} 
+                                <div class="count-put ms-2" @click="changeCountPlus">+</div> </span>
+                        </div>
                     </div>
-                    <div @click="removeGood(index)" role="btn" class="btn-down border rounded-md p-3">x</div>
+                    <div @click="removeGood(good._id)" role="btn" class="btn-down border rounded-md p-3">x</div>
                 </div>
             </div>
             <div class="flex flex-col gap-4" :class="{'bottom-menu': is2, 'buy-menu': !is2}">
                 <div class="summ-block flex justify-between items-center">
-                    <span class="text-slate-500">Cумма: </span>
+                    <span class="text-slate-500">Итого: </span>
                     <span class="text-slate-500">{{ summ }} руб.</span>
                 </div>
                 <div class="action-block flex justify-between items-center">
@@ -140,5 +163,16 @@ export default {
     position: absolute;
     bottom: 15px;
     right: 15px;
+}
+.count {
+    display: flex;
+    flex-direction: row;
+}
+.count-put {
+    opacity: 0.6;
+    transition: opacity 300ms ease;
+}
+.count-put:hover {
+    opacity: 1;
 }
 </style>
